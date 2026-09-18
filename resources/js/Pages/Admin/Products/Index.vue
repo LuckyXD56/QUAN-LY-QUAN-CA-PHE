@@ -15,6 +15,7 @@ const form = useForm({
     name: '',
     price: '',
     description: '',
+    image: '',
     is_available: true,
 });
 
@@ -62,6 +63,10 @@ const deleteProduct = (id) => {
                         <div>
                             <InputLabel for="price" value="Giá (VNĐ)" />
                             <TextInput id="price" type="number" class="mt-1 block w-full" v-model="form.price" required />
+                        </div>
+                        <div>
+                            <InputLabel for="image" value="URL Hình ảnh (Image URL)" />
+                            <TextInput id="image" type="text" class="mt-1 block w-full" v-model="form.image" placeholder="https://..." />
                         </div>
                         <div>
                             <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">

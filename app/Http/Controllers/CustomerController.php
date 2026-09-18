@@ -37,10 +37,23 @@ class CustomerController extends Controller
             $q->where('is_available', true);
         }])->orderBy('sort_order')->get();
 
+        // Get existing placed orders
+        $placedOrders = [];
+        if ($activeSession) {
+            $placedOrders = OrderItem::with('product')
+                ->whereHas('order', function($q) use ($activeSession) {
+                    $q->where('order_session_id', $activeSession->id);
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
+
         return Inertia::render('Customer/Menu', [
             'table' => $table,
             'categories' => $categories,
-            'session_token' => $activeSession->session_token
+            'session_token' => $activeSession->session_token,
+            'session_id' => $activeSession->id,
+            'placedOrders' => $placedOrders
         ]);
     }
 

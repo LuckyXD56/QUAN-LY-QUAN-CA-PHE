@@ -38,6 +38,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('kitchen', [\App\Http\Controllers\Admin\KitchenController::class, 'index'])->name('kitchen.index');
     Route::patch('kitchen/{item}', [\App\Http\Controllers\Admin\KitchenController::class, 'updateStatus'])->name('kitchen.update-status');
     Route::get('reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('reports.index');
+    Route::get('reports/export', [\App\Http\Controllers\Admin\ReportController::class, 'export'])->name('reports.export');
 });
 
 require __DIR__.'/auth.php';

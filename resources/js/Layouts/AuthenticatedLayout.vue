@@ -6,8 +6,15 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
+import { useI18n } from 'vue-i18n';
 
 const showingNavigationDropdown = ref(false);
+const { t, locale } = useI18n();
+
+const changeLanguage = (lang) => {
+    locale.value = lang;
+    localStorage.setItem('locale', lang);
+};
 </script>
 
 <template>
@@ -37,48 +44,62 @@ const showingNavigationDropdown = ref(false);
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
                                 >
-                                    Dashboard
+                                    {{ t('dashboard') }}
                                 </NavLink>
                                 <NavLink
+                                    v-if="$page.props.auth.user.role === 'admin'"
                                     :href="route('admin.categories.index')"
                                     :active="route().current('admin.categories.*')"
                                 >
-                                    Danh mục
+                                    {{ t('categories') }}
                                 </NavLink>
                                 <NavLink
+                                    v-if="$page.props.auth.user.role === 'admin'"
                                     :href="route('admin.products.index')"
                                     :active="route().current('admin.products.*')"
                                 >
-                                    Món ăn
+                                    {{ t('products') }}
                                 </NavLink>
                                 <NavLink
+                                    v-if="$page.props.auth.user.role === 'admin'"
                                     :href="route('admin.tables.index')"
                                     :active="route().current('admin.tables.*')"
                                 >
-                                    Bàn & QR
+                                    {{ t('tables_qr') }}
                                 </NavLink>
                                 <NavLink
+                                    v-if="['admin', 'cashier'].includes($page.props.auth.user.role)"
                                     :href="route('admin.cashier.index')"
                                     :active="route().current('admin.cashier.*')"
                                 >
-                                    Thu ngân
+                                    {{ t('cashier') }}
                                 </NavLink>
                                 <NavLink
+                                    v-if="['admin', 'kitchen'].includes($page.props.auth.user.role)"
                                     :href="route('admin.kitchen.index')"
                                     :active="route().current('admin.kitchen.*')"
                                 >
-                                    Bếp (Real-time)
+                                    {{ t('kitchen') }}
                                 </NavLink>
                                 <NavLink
+                                    v-if="$page.props.auth.user.role === 'admin'"
                                     :href="route('admin.reports.index')"
                                     :active="route().current('admin.reports.*')"
                                 >
-                                    Thống kê
+                                    {{ t('reports') }}
                                 </NavLink>
                             </div>
                         </div>
 
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
+                            <!-- Language Switcher -->
+                            <div class="flex space-x-2 mr-4 border-r pr-4 border-gray-300">
+                                <button @click="changeLanguage('th')" :class="locale === 'th' ? 'font-bold text-indigo-600' : 'text-gray-500 hover:text-gray-700'">TH</button>
+                                <button @click="changeLanguage('vi')" :class="locale === 'vi' ? 'font-bold text-indigo-600' : 'text-gray-500 hover:text-gray-700'">VN</button>
+                                <button @click="changeLanguage('en')" :class="locale === 'en' ? 'font-bold text-indigo-600' : 'text-gray-500 hover:text-gray-700'">EN</button>
+                                <button @click="changeLanguage('lo')" :class="locale === 'lo' ? 'font-bold text-indigo-600' : 'text-gray-500 hover:text-gray-700'">LA</button>
+                            </div>
+
                             <!-- Settings Dropdown -->
                             <div class="relative ms-3">
                                 <Dropdown align="right" width="48">
@@ -110,14 +131,14 @@ const showingNavigationDropdown = ref(false);
                                         <DropdownLink
                                             :href="route('profile.edit')"
                                         >
-                                            Profile
+                                            {{ t('profile') }}
                                         </DropdownLink>
                                         <DropdownLink
                                             :href="route('logout')"
                                             method="post"
                                             as="button"
                                         >
-                                            Log Out
+                                            {{ t('log_out') }}
                                         </DropdownLink>
                                     </template>
                                 </Dropdown>
@@ -180,7 +201,49 @@ const showingNavigationDropdown = ref(false);
                             :href="route('dashboard')"
                             :active="route().current('dashboard')"
                         >
-                            Dashboard
+                            {{ t('dashboard') }}
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            v-if="$page.props.auth.user.role === 'admin'"
+                            :href="route('admin.categories.index')"
+                            :active="route().current('admin.categories.*')"
+                        >
+                            {{ t('categories') }}
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            v-if="$page.props.auth.user.role === 'admin'"
+                            :href="route('admin.products.index')"
+                            :active="route().current('admin.products.*')"
+                        >
+                            {{ t('products') }}
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            v-if="$page.props.auth.user.role === 'admin'"
+                            :href="route('admin.tables.index')"
+                            :active="route().current('admin.tables.*')"
+                        >
+                            {{ t('tables_qr') }}
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            v-if="['admin', 'cashier'].includes($page.props.auth.user.role)"
+                            :href="route('admin.cashier.index')"
+                            :active="route().current('admin.cashier.*')"
+                        >
+                            {{ t('cashier') }}
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            v-if="['admin', 'kitchen'].includes($page.props.auth.user.role)"
+                            :href="route('admin.kitchen.index')"
+                            :active="route().current('admin.kitchen.*')"
+                        >
+                            {{ t('kitchen') }}
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            v-if="$page.props.auth.user.role === 'admin'"
+                            :href="route('admin.reports.index')"
+                            :active="route().current('admin.reports.*')"
+                        >
+                            {{ t('reports') }}
                         </ResponsiveNavLink>
                     </div>
 
@@ -199,16 +262,24 @@ const showingNavigationDropdown = ref(false);
                             </div>
                         </div>
 
+                        <!-- Mobile Language Switcher -->
+                        <div class="px-4 mt-3 flex space-x-3 border-t pt-3 border-gray-200">
+                            <button @click="changeLanguage('th')" :class="locale === 'th' ? 'font-bold text-indigo-600' : 'text-gray-500'">TH</button>
+                            <button @click="changeLanguage('vi')" :class="locale === 'vi' ? 'font-bold text-indigo-600' : 'text-gray-500'">VN</button>
+                            <button @click="changeLanguage('en')" :class="locale === 'en' ? 'font-bold text-indigo-600' : 'text-gray-500'">EN</button>
+                            <button @click="changeLanguage('lo')" :class="locale === 'lo' ? 'font-bold text-indigo-600' : 'text-gray-500'">LA</button>
+                        </div>
+
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')">
-                                Profile
+                                {{ t('profile') }}
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 :href="route('logout')"
                                 method="post"
                                 as="button"
                             >
-                                Log Out
+                                {{ t('log_out') }}
                             </ResponsiveNavLink>
                         </div>
                     </div>

@@ -9,11 +9,33 @@ const props = defineProps({
 
 const orderItems = ref(props.initialItems);
 
+const playSound = () => {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'bell'; // fallback to sine
+        osc.frequency.setValueAtTime(880, ctx.currentTime); // A5 note
+        osc.frequency.setValueAtTime(1108.73, ctx.currentTime + 0.1); // C#6 note
+        gain.gain.setValueAtTime(0.5, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+    } catch (e) {
+        console.error("Audio play failed", e);
+    }
+};
+
 // Setup Real-time listening
 onMounted(() => {
     if (window.Echo) {
         window.Echo.channel('kitchen')
             .listen('.order.placed', (e) => {
+                playSound();
                 // Thêm các món mới vào danh sách hiện tại
                 const newOrder = e.order;
                 newOrder.items.forEach(item => {
@@ -81,8 +103,8 @@ const updateStatus = (item, status) => {
                     <div 
                         v-for="item in orderItems" 
                         :key="item.id"
-                        class="bg-white rounded-lg shadow-lg overflow-hidden border-t-4"
-                        :class="item.status === 'pending' ? 'border-red-500' : 'border-yellow-400'"
+                        class="bg-white rounded-lg shadow-lg overflow-hidden"
+                        :class="item.status === 'pending' ? 'ring-1 ring-red-500' : 'ring-1 ring-yellow-400'"
                     >
                         <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
                             <div class="font-bold text-lg text-gray-800">

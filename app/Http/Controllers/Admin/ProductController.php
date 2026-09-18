@@ -29,7 +29,7 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'is_available' => 'boolean',
-            // 'image' => 'nullable|image' // Optional for now
+            'image' => 'nullable|string'
         ]);
 
         Product::create($request->all());
@@ -45,6 +45,7 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'is_available' => 'boolean',
+            'image' => 'nullable|string'
         ]);
 
         $product->update($request->all());

@@ -30,6 +30,8 @@ class KitchenController extends Controller
 
         $item->update(['status' => $request->status]);
 
+        broadcast(new \App\Events\OrderItemUpdated($item->load('product', 'order')))->toOthers();
+
         return back();
     }
 }

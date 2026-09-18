@@ -54,6 +54,10 @@ const processCheckout = () => {
         onSuccess: () => closeCheckout(),
     });
 };
+
+const printBill = () => {
+    window.print();
+};
 </script>
 
 <template>
@@ -143,18 +147,88 @@ const processCheckout = () => {
                     </div>
                 </div>
 
-                <div class="mt-6 flex justify-end">
-                    <SecondaryButton @click="closeCheckout">Hủy</SecondaryButton>
-                    <PrimaryButton
-                        class="ms-3"
-                        :class="{ 'opacity-25': checkoutForm.processing }"
-                        :disabled="checkoutForm.processing"
-                        @click="processCheckout"
-                    >
-                        Xác nhận Thanh toán
-                    </PrimaryButton>
+                <div class="mt-6 flex justify-between">
+                    <button type="button" @click="printBill" class="inline-flex items-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-800 uppercase tracking-widest hover:bg-gray-300 focus:bg-gray-300 active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        🖨️ In tạm tính
+                    </button>
+                    <div class="flex">
+                        <SecondaryButton @click="closeCheckout">Hủy</SecondaryButton>
+                        <PrimaryButton
+                            class="ms-3"
+                            :class="{ 'opacity-25': checkoutForm.processing }"
+                            :disabled="checkoutForm.processing"
+                            @click="processCheckout"
+                        >
+                            Xác nhận Thanh toán
+                        </PrimaryButton>
+                    </div>
                 </div>
             </div>
         </Modal>
+
+        <!-- Printable Bill Area (Hidden on screen, visible on print) -->
+        <div id="print-area" class="hidden print:block fixed top-0 left-0 w-full h-full bg-white z-[9999] p-4 text-black font-mono text-sm" v-if="selectedSession">
+            <div class="max-w-[80mm] mx-auto border-b-2 border-dashed pb-4 mb-4">
+                <h1 class="text-xl font-bold text-center mb-1">COFFEE SHOP POS</h1>
+                <p class="text-center text-xs mb-4">Hóa đơn tạm tính</p>
+                <div class="flex justify-between mb-1">
+                    <span>Bàn: {{ tables.find(t => t.active_session?.id === selectedSession.id)?.name }}</span>
+                    <span>Ngày: {{ new Date().toLocaleDateString('vi-VN') }}</span>
+                </div>
+            </div>
+            
+            <div class="max-w-[80mm] mx-auto">
+                <table class="w-full text-left mb-4">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="py-1">Món</th>
+                            <th class="py-1 text-right">SL</th>
+                            <th class="py-1 text-right">Giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template v-for="order in selectedSession.orders" :key="order.id">
+                            <tr v-for="item in order.items" :key="item.id" v-show="item.status !== 'cancelled'">
+                                <td class="py-1 pr-2">{{ item.product.name }}</td>
+                                <td class="py-1 text-right">{{ item.quantity }}</td>
+                                <td class="py-1 text-right">{{ (item.price * item.quantity).toLocaleString() }}</td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+                <div class="border-t-2 border-dashed pt-2">
+                    <div class="flex justify-between">
+                        <span>Tổng tiền:</span>
+                        <span class="font-bold">{{ calculateTotal(selectedSession).toLocaleString() }} đ</span>
+                    </div>
+                    <div class="flex justify-between" v-if="checkoutForm.discount > 0">
+                        <span>Giảm giá:</span>
+                        <span>-{{ checkoutForm.discount.toLocaleString() }} đ</span>
+                    </div>
+                    <div class="flex justify-between text-lg font-bold mt-2 border-t pt-2">
+                        <span>Thành tiền:</span>
+                        <span>{{ finalAmount.toLocaleString() }} đ</span>
+                    </div>
+                </div>
+                <p class="text-center text-xs mt-6">Xin cảm ơn và hẹn gặp lại!</p>
+            </div>
+        </div>
     </AuthenticatedLayout>
 </template>
+
+<style>
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #print-area, #print-area * {
+        visibility: visible;
+    }
+    #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}
+</style>

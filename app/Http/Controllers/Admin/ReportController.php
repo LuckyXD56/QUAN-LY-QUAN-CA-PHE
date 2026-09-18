@@ -53,4 +53,48 @@ class ReportController extends Controller
             ]
         ]);
     }
+
+    public function export()
+    {
+        $fileName = 'revenue_report_' . date('Y_m_d') . '.csv';
+        
+        $invoices = Invoice::where('status', 'paid')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $headers = array(
+            "Content-type"        => "text/csv; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $columns = array('ID', 'Order Session ID', 'Total Amount', 'Discount', 'Final Amount', 'Payment Method', 'Date');
+
+        $callback = function() use($invoices, $columns) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for UTF-8 Excel support
+            fputs($file, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
+            
+            fputcsv($file, $columns);
+
+            foreach ($invoices as $invoice) {
+                fputcsv($file, array(
+                    $invoice->id,
+                    $invoice->order_session_id,
+                    $invoice->total_amount,
+                    $invoice->discount,
+                    $invoice->final_amount,
+                    $invoice->payment_method,
+                    $invoice->created_at->format('Y-m-d H:i:s')
+                ));
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }
